@@ -159,20 +159,20 @@ function detectComplementMismatch(market: GammaMarket): MarketSignal | null {
 
 // Main Scanner
 
-// In-memory cache to ensure only new signals are returned
-const reportedSignalsCache = new Set<string>();
+// // In-memory cache to ensure only new signals are returned
+// const reportedSignalsCache = new Set<string>();
 
 /**
  * Run all signal detectors across a list of markets.
  * Returns all triggered signals.
  */
 export async function scanMarkets(markets: GammaMarket[]): Promise<MarketSignal[]> {
-  const currentBatch: MarketSignal[] = [];
+  const signals: MarketSignal[] = [];
 
   for (const market of markets) {
     // Run complement check (sync, no API call needed)
     const complementSignal = detectComplementMismatch(market);
-    if (complementSignal) currentBatch.push(complementSignal);
+    if (complementSignal) signals.push(complementSignal);
 
     // Run async detectors with a small sequential pause to avoid hammering CLOB
     const [spreadSignal, driftSignal] = await Promise.all([
@@ -180,25 +180,27 @@ export async function scanMarkets(markets: GammaMarket[]): Promise<MarketSignal[
       detectPriceDrift(market),
     ]);
 
-    if (spreadSignal) currentBatch.push(spreadSignal);
-    if (driftSignal) currentBatch.push(driftSignal);
+    if (spreadSignal) signals.push(spreadSignal);
+    if (driftSignal) signals.push(driftSignal);
   }
 
-  // Filter out previously seen signals
-  const newSignals: MarketSignal[] = [];
-  for (const sig of currentBatch) {
-    const hash =
-      sig.type === "PRICE_DRIFT"
-        ? `${sig.type}:${sig.marketId}:${sig.detail}`
-        : `${sig.type}:${sig.marketId}`;
+  // // Filter out previously seen signals
+  // const newSignals: MarketSignal[] = [];
+  // for (const sig of currentBatch) {
+  //   const hash =
+  //     sig.type === "PRICE_DRIFT"
+  //       ? `${sig.type}:${sig.marketId}:${sig.detail}`
+  //       : `${sig.type}:${sig.marketId}`;
+  //
+  //   if (!reportedSignalsCache.has(hash)) {
+  //     reportedSignalsCache.add(hash);
+  //     newSignals.push(sig);
+  //   }
+  // }
+  //
+  // return newSignals;
 
-    if (!reportedSignalsCache.has(hash)) {
-      reportedSignalsCache.add(hash);
-      newSignals.push(sig);
-    }
-  }
-
-  return newSignals;
+  return signals;
 }
 
 /** Expose current cache size for status reporting */

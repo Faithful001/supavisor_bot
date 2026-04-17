@@ -50,7 +50,7 @@ export function formatSignalBatch(signals: MarketSignal[], scannedCount: number)
     return [
       `🤖 *Supavisor Bot Scan Complete*`,
       ``,
-      `✅ No signals detected across ${scannedCount} markets`,
+      `✅ No new signals detected across ${scannedCount} markets`,
       `🕐 ${timestamp}`,
     ].join("\n");
   }
