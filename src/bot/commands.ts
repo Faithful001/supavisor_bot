@@ -120,6 +120,18 @@ export function registerCommands(bot: Bot): void {
       await ctx.reply(`❌ Scan failed: ${message}`);
     }
   });
+
+  // Fallback for unknown commands
+  bot.on("message:text", async (ctx) => {
+    if (ctx.message.text.startsWith("/")) {
+      const command = ctx.message.text.split(" ")[0];
+      await ctx.reply(
+        `*Unknown command:* \`${command}\`\n\n` +
+          `I didn't recognize that. Type /help to see what I can do.`,
+        { parse_mode: "Markdown" }
+      );
+    }
+  });
 }
 
 // Scan Runner
