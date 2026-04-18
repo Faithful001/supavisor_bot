@@ -10,17 +10,19 @@ import { userService } from "./modules/user/user.service";
 async function main() {
   const PORT = process.env.PORT || 3000;
 
-  const app = http.createServer((_, res) => {
-    res.writeHead(200);
-    res.end("OK");
-  });
+  const app = http
+    .createServer((_, res) => {
+      res.writeHead(200);
+      res.end("OK");
+    })
+    .listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
 
   mongoose
     .connect(config.mongodb.uri)
     .then(() => {
-      app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-      });
+      console.log("MongoDB connected");
     })
     .catch((error: any) => {
       console.log(error);
