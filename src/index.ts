@@ -3,10 +3,20 @@ import { Bot } from "grammy";
 import cron from "node-cron";
 import { config } from "./config";
 import { registerCommands, runScan } from "./bot/commands";
+import http from 'http';
+
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
 async function main() {
+const PORT = process.env.PORT || 3000;
+http.createServer((_, res) => {
+  res.writeHead(200);
+  res.end('OK');
+}).listen(PORT, () => {
+  console.log(`Health check listening on port ${PORT}`);
+});
+  
   console.log("🤖 Supavisor Bot starting up...");
   console.log(`📊 Poll interval: every ${config.polling.intervalMinutes} minute(s)`);
   console.log(`💵 Min volume filter: $${config.markets.minVolumeUsd.toLocaleString()}`);
