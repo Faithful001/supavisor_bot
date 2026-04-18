@@ -81,6 +81,9 @@ export function registerCommands(bot: Bot): void {
         `/start - Introduction and signal descriptions`,
         `/scan - Trigger an immediate market scan`,
         `/status - Bot status, last poll time, signal counts`,
+        `/pause - Pause notifications`,
+        `/unpause - Resume notifications`,
+        `/setinterval <minutes> - Set poll interval`,
         `/help - This help message`,
       ].join("\n"),
       { parse_mode: "Markdown" }
