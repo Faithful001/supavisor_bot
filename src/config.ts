@@ -32,9 +32,9 @@ export const config = {
     botToken: requireEnv("TELEGRAM_BOT_TOKEN"),
     chatId: requireEnv("TELEGRAM_CHAT_ID"),
   },
-  polling: {
-    intervalMinutes: optionalEnvInt("POLL_INTERVAL_MINUTES", 5),
-  },
+  // polling: {
+  //   intervalMinutes: optionalEnvInt("POLL_INTERVAL_MINUTES", 5),
+  // },
   markets: {
     minVolumeUsd: optionalEnvFloat("MIN_VOLUME_USD", 25000),
     limit: optionalEnvInt("MARKETS_LIMIT", 50),

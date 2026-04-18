@@ -29,7 +29,7 @@ export function registerCommands(bot: Bot): void {
       [
         `🤖 *Supavisor Bot* - Polymarket Signal Monitor`,
         ``,
-        `I scan active Polymarket prediction markets every *${config.polling.intervalMinutes} minutes* and alert you to:`,
+        `I scan active Polymarket prediction markets every *5 minutes* by default and alert you to:`,
         ``,
         `📊 *Wide Spread* - Thin liquidity / limit order opportunity`,
         `📈 *Price Drift* - Fast-moving market sentiment`,
@@ -38,10 +38,10 @@ export function registerCommands(bot: Bot): void {
         `*Commands:*`,
         `/scan - Run an immediate market scan`,
         `/status - Show bot status and last run info`,
-        `/help - Show this message`,
         `/pause - Pause notifications`,
         `/unpause - Resume notifications`,
         `/setinterval <minutes> - Set poll interval`,
+        `/help - Show this message`,
       ].join("\n"),
       { parse_mode: "Markdown" }
     );
@@ -64,7 +64,8 @@ export function registerCommands(bot: Bot): void {
       return;
     }
     const interval = parseInt(args[1]);
-    if (isNaN(interval) || interval < 1) {
+    const isNumber = args[1].match(/^[0-9]+$/);
+    if (isNaN(interval) || !isNumber || interval < 1) {
       await ctx.reply("Invalid interval. Must be a positive number.");
       return;
     }
@@ -87,12 +88,13 @@ export function registerCommands(bot: Bot): void {
   });
 
   bot.command("status", async (ctx) => {
+    const user = await userService.getUser(ctx.chat?.id.toString() || "");
     const message = formatStatus({
       lastPollAt: state.lastPollAt,
       lastSignalCount: state.lastSignalCount,
       totalScans: state.totalScans,
       cacheSize: getCacheSize(),
-      pollIntervalMinutes: config.polling.intervalMinutes,
+      pollIntervalMinutes: user?.pollInterval || 5,
     });
 
     await ctx.reply(message, { parse_mode: "Markdown" });

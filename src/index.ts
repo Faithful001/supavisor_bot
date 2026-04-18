@@ -7,8 +7,6 @@ import http from "http";
 import mongoose from "mongoose";
 import { userService } from "./modules/user/user.service";
 
-// ── Bootstrap ─────────────────────────────────────────────────────────────────
-
 async function main() {
   const PORT = process.env.PORT || 3000;
 
@@ -21,7 +19,7 @@ async function main() {
     .connect(config.mongodb.uri)
     .then(() => {
       app.listen(PORT, () => {
-        console.log(`Health check listening on port ${PORT}`);
+        console.log(`Server running on port ${PORT}`);
       });
     })
     .catch((error: any) => {
@@ -29,7 +27,6 @@ async function main() {
     });
 
   console.log("Supavisor Bot starting up...");
-  console.log(`Poll interval: every ${config.polling.intervalMinutes} minute(s)`);
   console.log(`Min volume filter: $${config.markets.minVolumeUsd.toLocaleString()}`);
   console.log(`Markets per scan: ${config.markets.limit}`);
   console.log("");
