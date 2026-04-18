@@ -24,7 +24,7 @@ const state: BotState = {
 
 export function registerCommands(bot: Bot): void {
   bot.command("start", async (ctx) => {
-    await userService.saveUser(ctx.from?.id.toString() || "");
+    await userService.saveUser(ctx.chat?.id.toString() || "");
     await ctx.reply(
       [
         `🤖 *Supavisor Bot* - Polymarket Signal Monitor`,
@@ -48,12 +48,12 @@ export function registerCommands(bot: Bot): void {
   });
 
   bot.command("pause", async (ctx) => {
-    await userService.pauseUser(ctx.from?.id.toString() || "");
+    await userService.pauseUser(ctx.chat?.id.toString() || "");
     await ctx.reply("Notifications paused");
   });
 
   bot.command("unpause", async (ctx) => {
-    await userService.unpauseUser(ctx.from?.id.toString() || "");
+    await userService.unpauseUser(ctx.chat?.id.toString() || "");
     await ctx.reply("Notifications resumed");
   });
 
@@ -68,7 +68,7 @@ export function registerCommands(bot: Bot): void {
       await ctx.reply("Invalid interval. Must be a positive number.");
       return;
     }
-    await userService.setPollInterval(ctx.from?.id.toString() || "", interval);
+    await userService.setPollInterval(ctx.chat?.id.toString() || "", interval);
     await ctx.reply(`Poll interval set to ${interval} minutes`);
   });
 

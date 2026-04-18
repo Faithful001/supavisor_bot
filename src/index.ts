@@ -3,14 +3,35 @@ import { Bot } from "grammy";
 import cron from "node-cron";
 import { config } from "./config";
 import { registerCommands, runScan } from "./bot/commands";
+import http from "http";
+import mongoose from "mongoose";
+import { userService } from "./modules/user/user.service";
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log("🤖 Supavisor Bot starting up...");
-  console.log(`📊 Poll interval: every ${config.polling.intervalMinutes} minute(s)`);
-  console.log(`💵 Min volume filter: $${config.markets.minVolumeUsd.toLocaleString()}`);
-  console.log(`📦 Markets per scan: ${config.markets.limit}`);
+  const PORT = process.env.PORT || 3000;
+
+  const app = http.createServer((_, res) => {
+    res.writeHead(200);
+    res.end("OK");
+  });
+
+  mongoose
+    .connect(config.mongodb.uri)
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Health check listening on port ${PORT}`);
+      });
+    })
+    .catch((error: any) => {
+      console.log(error);
+    });
+
+  console.log("Supavisor Bot starting up...");
+  console.log(`Poll interval: every ${config.polling.intervalMinutes} minute(s)`);
+  console.log(`Min volume filter: $${config.markets.minVolumeUsd.toLocaleString()}`);
+  console.log(`Markets per scan: ${config.markets.limit}`);
   console.log("");
 
   // Telegram Bot
@@ -27,57 +48,68 @@ async function main() {
   // Start the bot (long-polling)
   bot.start({
     onStart: (info) => {
-      console.log(`✅ Bot connected as @${info.username}`);
+      console.log(`Bot connected as @${info.username}`);
     },
   });
 
   // Cron Poller
-  const cronExpression = `*/${config.polling.intervalMinutes} * * * *`;
 
-  console.log(`⏱ Cron scheduled: ${cronExpression}`);
+  // 1. Run the master cron every minute
+  const cronExpression = "* * * * *";
+  console.log(`Master Cron scheduled: ${cronExpression}`);
 
   cron.schedule(cronExpression, async () => {
-    console.log(`[${new Date().toISOString()}] Running scheduled market scan...`);
+    const nowMinute = new Date().getMinutes();
+
+    // 2. Fetch ALL active users from MongoDB
+    const users = await userService.getActiveUsers();
+
+    if (users.length === 0) return;
+
+    console.log(`[${new Date().toISOString()}] Master tick. Active users: ${users.length}`);
 
     try {
+      // 3. Scan the markets ONCE to save memory/API limits
       const message = await runScan();
 
-      // Push results to the configured chat
-      await bot.api.sendMessage(config.telegram.chatId, message, {
-        parse_mode: "Markdown",
-        // Suppress link previews for cleaner messages
-        link_preview_options: { is_disabled: true },
-      });
-
-      console.log(`[${new Date().toISOString()}] Scan complete - message sent`);
+      // 4. Loop through everyone
+      for (const user of users) {
+        // 5. Only send if it matches their specific interval
+        if (nowMinute % user.pollInterval === 0) {
+          try {
+            await bot.api.sendMessage(user.chatId, message, {
+              parse_mode: "Markdown",
+              // Suppress link previews for cleaner messages
+              link_preview_options: { is_disabled: true },
+            });
+          } catch (err) {
+            console.error(`Failed to send to user ${user.chatId}`, err);
+          }
+        }
+      }
+      console.log(`[${new Date().toISOString()}] Scans dispatched to due users`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[${new Date().toISOString()}] Scan error: ${msg}`);
-
-      // Notify chat of failure (best-effort)
-      try {
-        await bot.api.sendMessage(
-          config.telegram.chatId,
-          `❌ *Supavisor Bot Scan Error*\n\`${msg}\``,
-          { parse_mode: "Markdown" }
-        );
-      } catch {
-        // Ignore secondary failure
-      }
     }
   });
 
   // Startup Scan
   // Run one scan immediately on startup so you don't wait for the first cron tick
-  console.log("🚀 Running initial scan on startup...");
+  console.log("Running initial scan on startup...");
   setTimeout(async () => {
     try {
       const message = await runScan();
-      await bot.api.sendMessage(config.telegram.chatId, message, {
-        parse_mode: "Markdown",
-        link_preview_options: { is_disabled: true },
-      });
-      console.log("✅ Initial scan complete");
+      const users = await userService.getActiveUsers();
+      for (const user of users) {
+        try {
+          await bot.api.sendMessage(user.chatId, message, {
+            parse_mode: "Markdown",
+            link_preview_options: { is_disabled: true },
+          });
+        } catch (err) {}
+      }
+      console.log("Initial scan complete");
     } catch (err) {
       console.error("Initial scan error:", err instanceof Error ? err.message : err);
     }

@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -25,21 +25,24 @@ function optionalEnvInt(key: string, defaultVal: number): number {
 }
 
 export const config = {
+  mongodb: {
+    uri: requireEnv("MONGODB_URI"),
+  },
   telegram: {
-    botToken: requireEnv('TELEGRAM_BOT_TOKEN'),
-    chatId: requireEnv('TELEGRAM_CHAT_ID'),
+    botToken: requireEnv("TELEGRAM_BOT_TOKEN"),
+    chatId: requireEnv("TELEGRAM_CHAT_ID"),
   },
   polling: {
-    intervalMinutes: optionalEnvInt('POLL_INTERVAL_MINUTES', 5),
+    intervalMinutes: optionalEnvInt("POLL_INTERVAL_MINUTES", 5),
   },
   markets: {
-    minVolumeUsd: optionalEnvFloat('MIN_VOLUME_USD', 25000),
-    limit: optionalEnvInt('MARKETS_LIMIT', 50),
+    minVolumeUsd: optionalEnvFloat("MIN_VOLUME_USD", 25000),
+    limit: optionalEnvInt("MARKETS_LIMIT", 50),
   },
   thresholds: {
-    spread: optionalEnvFloat('SPREAD_THRESHOLD', 0.05),
-    drift: optionalEnvFloat('DRIFT_THRESHOLD', 0.08),
-    complement: optionalEnvFloat('COMPLEMENT_THRESHOLD', 0.03),
+    spread: optionalEnvFloat("SPREAD_THRESHOLD", 0.05),
+    drift: optionalEnvFloat("DRIFT_THRESHOLD", 0.08),
+    complement: optionalEnvFloat("COMPLEMENT_THRESHOLD", 0.03),
   },
 } as const;
 

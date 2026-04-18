@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
   {
-    userId: { type: String, required: true },
+    chatId: { type: String, required: true, unique: true },
     isPaused: { type: Boolean, default: false },
     pollInterval: { type: Number, default: 5 },
   },

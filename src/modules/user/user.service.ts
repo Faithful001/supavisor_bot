@@ -1,38 +1,47 @@
 import { User } from "./user.schema";
 
 class UserService {
-  // Save user to db
-  async saveUser(userId: string) {
-    const user = await User.findOne({ userId });
+  async saveUser(chatId: string) {
+    const user = await User.findOne({ chatId });
     if (user) return;
-    const newUser = new User({ userId });
+    const newUser = new User({ chatId });
     await newUser.save();
   }
 
-  async pauseUser(userId: string) {
-    const user = await User.findOne({ userId });
+  async pauseUser(chatId: string) {
+    const user = await User.findOne({ chatId });
     if (!user) return;
     user.isPaused = true;
     await user.save();
   }
 
-  async unpauseUser(userId: string) {
-    const user = await User.findOne({ userId });
+  async unpauseUser(chatId: string) {
+    const user = await User.findOne({ chatId });
     if (!user) return;
     user.isPaused = false;
     await user.save();
   }
 
-  async setPollInterval(userId: string, interval: number) {
-    const user = await User.findOne({ userId });
+  async setPollInterval(chatId: string, interval: number) {
+    const user = await User.findOne({ chatId });
     if (!user) return;
     user.pollInterval = interval;
     await user.save();
   }
 
-  async getUser(userId: string) {
-    const user = await User.findOne({ userId });
+  async getPollInterval(chatId: string) {
+    const user = await User.findOne({ chatId });
+    if (!user) return;
+    return user.pollInterval;
+  }
+
+  async getUser(chatId: string) {
+    const user = await User.findOne({ chatId });
     return user;
+  }
+
+  async getActiveUsers() {
+    return await User.find({ isPaused: false });
   }
 
   async getAllUsers() {
