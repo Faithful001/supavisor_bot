@@ -49,7 +49,7 @@ async function main() {
         link_preview_options: { is_disabled: true },
       });
 
-      console.log(`[${new Date().toISOString()}] Scan complete — message sent`);
+      console.log(`[${new Date().toISOString()}] Scan complete - message sent`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[${new Date().toISOString()}] Scan error: ${msg}`);

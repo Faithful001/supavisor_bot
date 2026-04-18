@@ -3,6 +3,8 @@ import { fetchActiveMarkets } from "../polymarket/gamma";
 import { scanMarkets, getCacheSize } from "../signals/detector";
 import { formatSignalBatch, formatStatus } from "../signals/formatter";
 import { config } from "../config";
+import { User } from "../modules/user/user.schema";
+import { userService } from "../modules/user/user.service";
 
 // Shared State
 
@@ -22,23 +24,52 @@ const state: BotState = {
 
 export function registerCommands(bot: Bot): void {
   bot.command("start", async (ctx) => {
+    await userService.saveUser(ctx.from?.id.toString() || "");
     await ctx.reply(
       [
-        `🤖 *Supavisor Bot* — Polymarket Signal Monitor`,
+        `🤖 *Supavisor Bot* - Polymarket Signal Monitor`,
         ``,
         `I scan active Polymarket prediction markets every *${config.polling.intervalMinutes} minutes* and alert you to:`,
         ``,
-        `📊 *Wide Spread* — Thin liquidity / limit order opportunity`,
-        `📈 *Price Drift* — Fast-moving market sentiment`,
-        `⚡ *Complement Mismatch* — YES + NO pricing inefficiency`,
+        `📊 *Wide Spread* - Thin liquidity / limit order opportunity`,
+        `📈 *Price Drift* - Fast-moving market sentiment`,
+        `⚡ *Complement Mismatch* - YES + NO pricing inefficiency`,
         ``,
         `*Commands:*`,
-        `/scan — Run an immediate market scan`,
-        `/status — Show bot status and last run info`,
-        `/help — Show this message`,
+        `/scan - Run an immediate market scan`,
+        `/status - Show bot status and last run info`,
+        `/help - Show this message`,
+        `/pause - Pause notifications`,
+        `/unpause - Resume notifications`,
+        `/setinterval <minutes> - Set poll interval`,
       ].join("\n"),
       { parse_mode: "Markdown" }
     );
+  });
+
+  bot.command("pause", async (ctx) => {
+    await userService.pauseUser(ctx.from?.id.toString() || "");
+    await ctx.reply("Notifications paused");
+  });
+
+  bot.command("unpause", async (ctx) => {
+    await userService.unpauseUser(ctx.from?.id.toString() || "");
+    await ctx.reply("Notifications resumed");
+  });
+
+  bot.command("setinterval", async (ctx) => {
+    const args = ctx.message?.text?.split(" ");
+    if (args?.length !== 2) {
+      await ctx.reply("Usage: /setinterval <minutes>");
+      return;
+    }
+    const interval = parseInt(args[1]);
+    if (isNaN(interval) || interval < 1) {
+      await ctx.reply("Invalid interval. Must be a positive number.");
+      return;
+    }
+    await userService.setPollInterval(ctx.from?.id.toString() || "", interval);
+    await ctx.reply(`Poll interval set to ${interval} minutes`);
   });
 
   bot.command("help", async (ctx) => {
@@ -46,10 +77,10 @@ export function registerCommands(bot: Bot): void {
       [
         `*Supavisor Bot Commands*`,
         ``,
-        `/start — Introduction and signal descriptions`,
-        `/scan — Trigger an immediate market scan`,
-        `/status — Bot status, last poll time, signal counts`,
-        `/help — This help message`,
+        `/start - Introduction and signal descriptions`,
+        `/scan - Trigger an immediate market scan`,
+        `/status - Bot status, last poll time, signal counts`,
+        `/help - This help message`,
       ].join("\n"),
       { parse_mode: "Markdown" }
     );

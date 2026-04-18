@@ -32,7 +32,7 @@ function parseClobTokenIds(raw?: string): string[] {
     const arr: unknown = JSON.parse(raw);
     if (Array.isArray(arr)) return arr.map(String);
   } catch {
-    // fall through — try comma-separated
+    // fall through - try comma-separated
   }
   return raw
     .split(",")
@@ -115,7 +115,7 @@ async function detectPriceDrift(market: GammaMarket): Promise<MarketSignal | nul
       question: market.question,
       slug: market.slug,
       eventSlug: market.events?.[0]?.slug,
-      detail: `${direction} ${(delta * 100).toFixed(1)}% in ~${minutesAgo}min — $${cached.price.toFixed(3)} → $${currentMid.toFixed(3)}`,
+      detail: `${direction} ${(delta * 100).toFixed(1)}% in ~${minutesAgo}min - $${cached.price.toFixed(3)} → $${currentMid.toFixed(3)}`,
       value: delta,
       threshold: config.thresholds.drift,
       detectedAt: new Date(),

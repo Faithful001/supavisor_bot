@@ -6,8 +6,8 @@ A TypeScript Telegram bot that monitors [Polymarket](https://polymarket.com) pre
 
 | Signal                     | Trigger                            | What it means                                        |
 | -------------------------- | ---------------------------------- | ---------------------------------------------------- |
-| 📊 **Wide Spread**         | `(ask - bid) / ask > 5%`           | Thin liquidity — place limit orders at better prices |
-| 📈 **Price Drift**         | Price moved `> 8%` since last scan | Fast momentum shift — worth investigating            |
+| 📊 **Wide Spread**         | `(ask - bid) / ask > 5%`           | Thin liquidity - place limit orders at better prices |
+| 📈 **Price Drift**         | Price moved `> 8%` since last scan | Fast momentum shift - worth investigating            |
 | ⚡ **Complement Mismatch** | `YES + NO ≠ $1.00 ± 3¢`            | Pure binary pricing inefficiency                     |
 
 All thresholds are configurable via `.env`.
@@ -88,7 +88,7 @@ npm start
 
 ```
 src/
-├── index.ts              # Entry point — boots bot + cron scheduler
+├── index.ts              # Entry point - boots bot + cron scheduler
 ├── config.ts             # Env var loader with validation
 ├── types.ts              # Shared TypeScript types
 ├── polymarket/
@@ -103,15 +103,15 @@ src/
 
 **APIs used (both read-only, no auth required):**
 
-- `https://gamma-api.polymarket.com` — market metadata, prices, volumes
-- `https://clob.polymarket.com` — live order books for spread detection
+- `https://gamma-api.polymarket.com` - market metadata, prices, volumes
+- `https://clob.polymarket.com` - live order books for spread detection
 
 ---
 
 ## Finding Your Chat ID
 
 1. Message [@userinfobot](https://t.me/userinfobot) on Telegram
-2. It will reply with your numeric user ID — use that as `TELEGRAM_CHAT_ID`
+2. It will reply with your numeric user ID - use that as `TELEGRAM_CHAT_ID`
 
 For a **group/channel**, add the bot as admin, send a message, then check:
 

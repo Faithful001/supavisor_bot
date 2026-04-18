@@ -56,7 +56,7 @@ export function formatSignalBatch(signals: MarketSignal[], scannedCount: number)
   }
 
   const header = [
-    `🤖 *Supavisor Bot — ${signals.length} Signal${signals.length === 1 ? "" : "s"} Detected*`,
+    `🤖 *Supavisor Bot - ${signals.length} Signal${signals.length === 1 ? "" : "s"} Detected*`,
     `📦 Scanned: ${scannedCount} markets | ${timestamp}`,
     `━━━━━━━━━━━━━━━━━━━━━━`,
   ].join("\n");
